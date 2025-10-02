@@ -1,58 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GitHub Repo File Index</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <title>Repo File List</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 4px 0; }
+    a { text-decoration: none; color: #0366d6; }
+  </style>
 </head>
 <body>
-  <!-- Login Panel -->
-  <div id="loginPanel">
-    <div id="loginBox">
-      <h2>Login</h2>
-      <input type="text" id="loginUser" placeholder="Username" />
-      <input type="password" id="loginPwd" placeholder="Password" />
-      <button id="loginBtn">Login</button>
-      <div id="loginMsg" style="color:var(--err);font-size:12px;display:none"></div>
-    </div>
-  </div>
+  <h2>Files in Repo</h2>
+  <ul id="fileList"></ul>
 
-  <main>
-    <div class="card">
-      <div class="list">
-        <div class="toolbar">
-          <div class="crumbs" id="breadcrumbs"></div>
-          <input id="search" placeholder="Filter files… (name contains)" />
-          <button><a class="btn" href="https://github.com/KSGVIO/R-Stuff/archive/refs/heads/brenciu.zip">Download all (~8 GB)</a></button>
-        </div>
+  <script>
+    const OWNER = "KSGVIO";
+    const REPO = "Port";
+    const BRANCH = "main";
 
-        <div id="notice" class="notice hidden"></div>
+    async function loadFiles() {
+      const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/?ref=${BRANCH}`;
+      const res = await fetch(url);
+      const data = await res.json();
 
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Size</th>
-            </tr>
-          </thead>
-          <tbody id="tbody"></tbody>
-        </table>
+      const list = document.getElementById("fileList");
+      list.innerHTML = "";
 
-        <div class="footer">
-          <div class="status" id="status"><span class="dot warn"></span> Ready</div>
-          <a class="btn ghost" id="githubLink" href="#" target="_blank">View on GitHub</a>
-        </div>
-      </div>
-    </div>
+      data.forEach(item => {
+        const li = document.createElement("li");
+        const link = document.createElement("a");
+        link.href = item.html_url;
+        link.textContent = item.name + (item.type === "dir" ? "/" : "");
+        li.appendChild(link);
+        list.appendChild(li);
+      });
+    }
 
-    <div class="preview" id="preview">
-      <button id="closePreviewBtn" class="close-preview hidden">✕ Close</button>
-      Select a file to preview
-    </div>
-  </main>
-
-  <script src="script.js"></script>
+    loadFiles();
+  </script>
 </body>
 </html>
